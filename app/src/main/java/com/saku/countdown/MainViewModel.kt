@@ -149,9 +149,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 -1
             }
-            val available = wishMemoMessages.indices.filter { it != prevIdx }
-                .ifEmpty { wishMemoMessages.indices }
-            val idx = available.random()
+            val templates = wishMemoMessages.indices.toList()
+            val available = templates.filter { it != prevIdx }
+            val idx = if (available.isNotEmpty()) available.random() else 0
             val text = String.format(wishMemoMessages[idx], d.wishMemo)
             return Selection(text, WISH_ID_BASE + idx, "wish")
         }
