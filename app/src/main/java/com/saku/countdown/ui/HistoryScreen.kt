@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,8 +32,8 @@ import com.saku.countdown.ui.theme.PaleGold
 import com.saku.countdown.ui.theme.White
 
 /**
- * 画面3：履歴画面。
- * 朔の言葉の履歴を日付順に表示する。
+ * 画面3：历史界面。
+ * 按日期倒序显示朔的留言历史。
  */
 @Composable
 fun HistoryScreen(
@@ -47,7 +48,7 @@ fun HistoryScreen(
             .background(NightBlue)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // ヘッダー
+            // 头部
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(12.dp)
@@ -55,15 +56,15 @@ fun HistoryScreen(
                 IconButton(onClick = onNavigateBack) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "戻る",
+                        contentDescription = "返回",
                         tint = White
                     )
                 }
-                Text("朔の言葉、積み重ね", fontSize = 16.sp, color = PaleGold)
+                Text("朔的言语，日积月累", fontSize = 16.sp, color = PaleGold)
             }
 
             if (history.isEmpty()) {
-                // データなし
+                // 无数据
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -71,7 +72,7 @@ fun HistoryScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "まだ言葉が積もっていない",
+                        text = "还没有积攒下言语",
                         fontSize = 14.sp,
                         color = MutedBlueGray,
                         textAlign = TextAlign.Center
@@ -80,13 +81,13 @@ fun HistoryScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     items(history.reversed()) { entry ->
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                text = "${entry.day}日目　${entry.date}",
+                                text = "第${entry.day}天　${entry.date}",
                                 fontSize = 12.sp,
                                 color = PaleGold
                             )

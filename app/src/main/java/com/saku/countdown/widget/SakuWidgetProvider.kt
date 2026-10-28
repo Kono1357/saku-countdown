@@ -34,13 +34,13 @@ class SakuWidgetProvider : AppWidgetProvider() {
         fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, widgetId: Int) {
             val (day, message) = readData(context)
             val preview = if (message.isBlank()) {
-                "朔のカウントダウン"
+                "朔的倒计时"
             } else {
                 message.replace("○", day.toString()).take(20) + "…"
             }
 
             val views = RemoteViews(context.packageName, R.layout.saku_widget)
-            views.setTextViewText(R.id.widget_text, "${day}日目　$preview")
+            views.setTextViewText(R.id.widget_text, "第${day}天　$preview")
 
             // タップでメイン画面を開く
             val intent = Intent(context, MainActivity::class.java)

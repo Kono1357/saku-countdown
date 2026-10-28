@@ -38,10 +38,12 @@ import com.saku.countdown.ui.theme.MutedBlueGray
 import com.saku.countdown.ui.theme.NightBlue
 import com.saku.countdown.ui.theme.PaleGold
 import com.saku.countdown.ui.theme.White
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 /**
- * 画面1：メイン画面。
- * 経過日数・朔からのメッセージ・目標情報を表示する。
+ * 画面1：主界面。
+ * 显示已过天数、倒计时、朔的留言、目标信息。
  */
 @Composable
 fun MainScreen(
@@ -51,15 +53,30 @@ fun MainScreen(
 ) {
     val data = viewModel.data
 
-    // 起動時フェードイン
+    // 启动淡入
     var launched by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { launched = true }
 
-    // メッセージ内の「○」を経過日数に置き換える
+    // 留言中的「○」替换为已过天数
     val messageText = if (data.lastMessage.isBlank()) {
-        "右上の歯車から目標を設定すると、朔からのメッセージが届きます"
+        "点右上角齿轮设置目标，就能收到朔的留言"
     } else {
         data.lastMessage.replace("○", data.todayDayCount.toString())
+    }
+
+    // 距离目标还有几天（倒计时）
+    val remainingDays = remember(data.targetDate) {
+        data.targetDate.takeIf { it.isNotBlank() }?.let {
+            runCatching {
+                ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(it)).toInt()
+            }.getOrNull()
+        }
+    }
+    val countdownText = when {
+        remainingDays == null -> null
+        remainingDays > 0 -> "距离目标还有 $remainingDays 天"
+        remainingDays == 0 -> "目标就是今天"
+        else -> "目标已过去 ${-remainingDays} 天"
     }
 
     Box(
@@ -67,7 +84,7 @@ fun MainScreen(
             .fillMaxSize()
             .background(NightBlue)
     ) {
-        // 右上の設定ボタン（歯車アイコン）
+        // 右上角设置按钮（齿轮图标）
         IconButton(
             onClick = onNavigateToSettings,
             modifier = Modifier
@@ -76,26 +93,25 @@ fun MainScreen(
         ) {
             Icon(
                 imageVector = Icons.Filled.Settings,
-                contentDescription = "設定",
+                contentDescription = "设置",
                 tint = MutedBlueGray
             )
         }
 
-        // 右下の履歴ボタン
+        // 右下角历史按钮
         TextButton(
             onClick = onNavigateToHistory,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(12.dp)
         ) {
-            Text("履歴", fontSize = 14.sp, color = MutedBlueGray)
+            Text("历史", fontSize = 14.sp, color = MutedBlueGray)
         }
 
         AnimatedVisibility(
             visible = launched,
             enter = fadeIn(tween(500))
         ) {
-            // 中央に縦並びで3つのエリアを配置
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -103,18 +119,29 @@ fun MainScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // 上部：経過日数
+                // 上部：已过天数
                 Text(
-                    text = "${data.todayDayCount}日目",
+                    text = "第${data.todayDayCount}天",
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
                     color = PaleGold,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(56.dp))
+                // 倒计时
+                countdownText?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = it,
+                        fontSize = 14.sp,
+                        color = PaleGold,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
-                // 中部：朔からの一言メッセージ（日付更新時にフェードイン）
+                Spacer(modifier = Modifier.height(48.dp))
+
+                // 中部：朔的留言（日期更新时淡入）
                 AnimatedContent(
                     targetState = messageText,
                     transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(200)) },
@@ -128,11 +155,11 @@ fun MainScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(56.dp))
+                Spacer(modifier = Modifier.height(48.dp))
 
-                // 下部：目標名と目標日
+                // 下部：目标名与目标日
                 Text(
-                    text = "目標: ${data.goalName.ifBlank { "未設定" }}　期限: ${data.targetDate.ifBlank { "未設定" }}",
+                    text = "目标: ${data.goalName.ifBlank { "未设置" }}　期限: ${data.targetDate.ifBlank { "未设置" }}",
                     fontSize = 12.sp,
                     color = MutedBlueGray,
                     textAlign = TextAlign.Center

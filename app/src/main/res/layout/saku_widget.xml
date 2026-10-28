@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="○日目"
+        android:text="第0天"
         android:textColor="#f0e6d2"
         android:textSize="14sp" />
 </LinearLayout>
