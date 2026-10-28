@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose アプリ用のベーステーマ（Activity 用） -->
+    <style name="Theme.SakuCountdown" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#1A1A2E</item>
+        <item name="android:statusBarColor">#1A1A2E</item>
+        <item name="android:navigationBarColor">#1A1A2E</item>
+    </style>
+
+    <!-- Android 12+ SplashScreen API 用テーマ -->
+    <style name="Theme.SakuCountdown.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#1A1A2E</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.SakuCountdown</item>
+    </style>
+</resources>

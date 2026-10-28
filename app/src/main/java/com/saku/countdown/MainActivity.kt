@@ -1,0 +1,74 @@
+package com.saku.countdown
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.saku.countdown.ui.HistoryScreen
+import com.saku.countdown.ui.MainScreen
+import com.saku.countdown.ui.SettingsScreen
+import com.saku.countdown.ui.theme.SakuCountdownTheme
+import kotlinx.coroutines.delay
+
+/**
+ * 単一 Activity。Compose Navigation で3画面（メイン・設定・履歴）を切り替える。
+ * Android 12+ の SplashScreen API で三日月アイコンを表示し、1.5秒後にメインへ遷移する。
+ */
+class MainActivity : ComponentActivity() {
+
+    // スプラッシュを 1.5 秒保持するためのフラグ
+    private val keepSplash = mutableStateOf(true)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { keepSplash.value }
+
+        setContent {
+            SakuCountdownTheme {
+                // 1.5 秒後にスプラッシュを閉じてメインを表示する
+                LaunchedEffect(Unit) {
+                    delay(1500)
+                    keepSplash.value = false
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = "main"
+                    ) {
+                        composable("main") {
+                            MainScreen(
+                                onNavigateToSettings = { navController.navigate("settings") },
+                                onNavigateToHistory = { navController.navigate("history") }
+                            )
+                        }
+                        composable("settings") {
+                            SettingsScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("history") {
+                            HistoryScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
