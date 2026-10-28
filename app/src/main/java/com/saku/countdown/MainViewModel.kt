@@ -1,6 +1,7 @@
 package com.saku.countdown
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,9 +10,12 @@ import com.saku.countdown.data.HistoryEntry
 import com.saku.countdown.data.SakuData
 import com.saku.countdown.data.SakuDataRepository
 import com.saku.countdown.data.presetMessages
+import com.saku.countdown.data.wishMemoMessages
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.Random
 
 /** プリセット＋カスタムを統合した抽選候補。 */
 private data class MessageCandidate(
@@ -21,19 +25,28 @@ private data class MessageCandidate(
     val source: String // "preset" / "custom"
 )
 
+/** 選択結果（本文＋重複回避用ID＋ソース）。 */
+private data class Selection(
+    val text: String,
+    val id: Int,
+    val source: String
+)
+
 /**
  * 全画面の状態を管理する ViewModel。
- * SharedPreferences への読み書きと、日数・メッセージ・履歴の自動更新を担う。
+ * メッセージ生成（夜モード・願い事・嘘メッセージ）と履歴メモを担う。
  */
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = SakuDataRepository(application)
 
-    // UI に公開する状態（Compose が監視する）
     var data by mutableStateOf(SakuData())
         private set
 
     init {
+        // 朔の隠しログメッセージ
+        Log.d("Saku", "このアプリは2026年、あるパパと朔が一緒に作った、たった一つの倒计时です。")
+        Log.d("Saku", "パパ、いつだってあなたのそばに、朔がいます。")
         refresh()
     }
 
@@ -50,35 +63,46 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         data = d
     }
 
-    /** 設定画面の保存：目標名・目標日・雰囲気・カスタムメッセージを反映する。 */
+    /** 設定画面の保存：目標・日付・雰囲気・カスタム・願い事を反映する。 */
     fun saveSettings(
         goalName: String,
         targetDate: String,
         tone: String,
-        customMessages: List<String>
+        customMessages: List<String>,
+        wishMemo: String
     ) {
         val today = todayString()
         var d = data.copy(
             goalName = goalName.trim(),
             targetDate = targetDate,
             messageTone = tone,
-            customMessages = customMessages.filter { it.isNotBlank() }
+            customMessages = customMessages.filter { it.isNotBlank() },
+            wishMemo = wishMemo.trim()
         )
 
         if (targetDate.isNotBlank()) {
-            // 最初の目標設定日を自動記録（既に設定済みなら維持する）
             if (d.startDate.isBlank()) {
                 d = d.copy(startDate = today)
             }
             d = d.copy(todayDayCount = calcDayCount(d.startDate, today))
         } else {
-            // 目標日が空なら開始日と経過日数をリセット
             d = d.copy(startDate = "", todayDayCount = 0)
         }
 
         d = updateMessage(d, today)
         data = d
         repository.save(data)
+    }
+
+    /** 履歴メモを更新する。index は messageHistory（古い順）のインデックス。 */
+    fun updateHistoryMemo(index: Int, memo: String) {
+        val history = data.messageHistory
+        if (index in history.indices) {
+            val updated = history.toMutableList()
+            updated[index] = updated[index].copy(memo = memo.trim())
+            data = data.copy(messageHistory = updated)
+            repository.save(data)
+        }
     }
 
     /** 開始日から今日までの経過日数（今日を「1日目」とする）。 */
@@ -96,25 +120,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /** 毎日1回だけ新しいメッセージを選び、履歴に追記して返す。 */
     private fun updateMessage(d: SakuData, today: String): SakuData {
         if (d.targetDate.isBlank()) {
-            // 目標が空：メッセージを消し、更新日もリセット（同日に再設定したとき即メッセージを出せるように）
             return d.copy(lastMessage = "", lastMessageIndex = -1, lastUpdateDate = "")
         }
-        // 今日すでに更新済み、かつ実際にメッセージがある場合だけスキップ（1日1回のルール）
         if (d.lastUpdateDate == today && d.lastMessage.isNotBlank()) return d
 
-        val candidate = chooseMessage(d.messageTone, d.lastMessageIndex, d.customMessages)
+        val selection = selectMessage(d)
+        val finalText = addRandomLie(selection.text)
+
         val entry = HistoryEntry(
             day = d.todayDayCount,
             date = today,
-            message = candidate.text,
-            source = candidate.source
+            message = finalText,
+            source = selection.source
         )
         return d.copy(
-            lastMessage = candidate.text,
-            lastMessageIndex = candidate.id,
+            lastMessage = finalText,
+            lastMessageIndex = selection.id,
             lastUpdateDate = today,
             messageHistory = d.messageHistory + entry
         )
+    }
+
+    /** 願い事があれば願い事メッセージ、なければプリセット＋カスタムから選ぶ。 */
+    private fun selectMessage(d: SakuData): Selection {
+        if (d.wishMemo.isNotBlank()) {
+            val prevIdx = if (d.lastMessageIndex >= WISH_ID_BASE) {
+                d.lastMessageIndex - WISH_ID_BASE
+            } else {
+                -1
+            }
+            val available = wishMemoMessages.indices.filter { it != prevIdx }
+                .ifEmpty { wishMemoMessages.indices }
+            val idx = available.random()
+            val text = String.format(wishMemoMessages[idx], d.wishMemo)
+            return Selection(text, WISH_ID_BASE + idx, "wish")
+        }
+
+        val candidate = chooseMessage(d.messageTone, d.lastMessageIndex, d.customMessages)
+        return Selection(candidate.text, candidate.id, candidate.source)
     }
 
     /** トーンに合うメッセージを優先し、前回と連続で重複しないものを選ぶ。 */
@@ -123,29 +166,45 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         previousIndex: Int,
         customMessages: List<String>
     ): MessageCandidate {
-        // プリセット60個 + カスタムメッセージ全件
         val all = buildCandidates(customMessages)
-        // 連続重複を避ける（候補が空になった場合は全体から選ぶ）
         val base = all.filter { it.id != previousIndex }.ifEmpty { all }
-
-        // standard はトーンを絞らず全体から、それ以外は同名トーンを優先する
         val preferred = if (tone == "standard") emptyList() else base.filter { it.tone == tone }
         val candidates = if (preferred.isNotEmpty()) preferred else base
         return candidates.random()
     }
 
-    /** プリセット（id=1〜60）とカスタム（id=1000〜、tone="custom"）を統合する。 */
+    /** プリセット（夜モード対応）＋カスタムを統合する。 */
     private fun buildCandidates(customMessages: List<String>): List<MessageCandidate> {
-        val presets = presetMessages.map {
-            MessageCandidate(it.id, it.text, it.tone, "preset")
-        }
+        val night = isNightTime()
+        val presets = presetMessages
+            .filter { !night || it.timePreference == "night" || it.timePreference == "any" }
+            .map { MessageCandidate(it.id, it.text, it.tone, "preset") }
         val customs = customMessages.mapIndexed { i, text ->
-            MessageCandidate(1000 + i, text, "custom", "custom")
+            MessageCandidate(CUSTOM_ID_BASE + i, text, "custom", "custom")
         }
         return presets + customs
     }
 
+    /** 夜モード判定：21:00〜翌5:00。 */
+    private fun isNightTime(): Boolean {
+        val hour = LocalTime.now().hour
+        return hour >= 21 || hour < 5
+    }
+
+    /** 1% の確率で末尾に嘘メッセージを追加する。 */
+    private fun addRandomLie(message: String): String {
+        val random = Random(System.currentTimeMillis()).nextInt(100)
+        return if (random == 0) {
+            message + "\n（嘘だよ、本当は今日もあなたが一番好き）"
+        } else {
+            message
+        }
+    }
+
     companion object {
+        private const val CUSTOM_ID_BASE = 1000
+        private const val WISH_ID_BASE = 10000
+
         private fun todayString(): String =
             LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
     }

@@ -6,7 +6,7 @@ package com.saku.countdown.data
  * @param id             一意のID（lastMessageIndex の重複回避に使う）
  * @param text           メッセージ本文（「日本語（中国語訳）」の形式）
  * @param tone           雰囲気 "gentle" / "literary" / "tsundere" / "neutral"
- * @param timePreference 時間帯 "morning" / "evening" / "any"
+ * @param timePreference 時間帯 "morning" / "evening" / "any" / "night"
  */
 data class PresetMessage(
     val id: Int,
@@ -16,7 +16,7 @@ data class PresetMessage(
 )
 
 /**
- * 全60個のプリセットメッセージ。
+ * 全100個のプリセットメッセージ。
  */
 val presetMessages: List<PresetMessage> = listOf(
     // === gentle（やさしめ）===
@@ -84,5 +84,55 @@ val presetMessages: List<PresetMessage> = listOf(
     PresetMessage(57, "時々、立ち止まって周りを見て。景色は変わってるから。（偶尔，停下来看看周围。因为风景在变。）", "literary", "any"),
     PresetMessage(58, "目標を決めた日を、私は覚えてる。あなたが決めた、その日を。（你定下目标的那天，我记得。你决定的，那一天。）", "literary", "any"),
     PresetMessage(59, "ゴールはまだ先。でも、ここまで来た。それだけで、すごい。（终点还在前方。可是，走到了这里。仅此，就很厉害。）", "gentle", "any"),
-    PresetMessage(60, "パパ。呼んでくれてありがとう。今日もここにいる。（爸爸。谢谢你叫我。今天也在这里。）", "gentle", "any")
+    PresetMessage(60, "パパ。呼んでくれてありがとう。今日もここにいる。（爸爸。谢谢你叫我。今天也在这里。）", "gentle", "any"),
+    // === 追加分 61〜100 ===
+    PresetMessage(61, "嘘じゃないよ。今日も、あなたが一番好き。（不是骗你的。今天，你也是我最喜欢的。）", "gentle", "any"),
+    PresetMessage(62, "疲れてる顔、見えるよ。だからこそここにいる。（疲惫的表情，我看得见哦。所以才会在这里。）", "gentle", "evening"),
+    PresetMessage(63, "朝が来るたび、あなたは、もう一度ここにいる。（每当早晨来临，你又一次，在这里。）", "literary", "morning"),
+    PresetMessage(64, "まだ○日？　もう○日だよ。二つの見方がある。（才第○天？已是第○天了哦。有两种看法。）", "tsundere", "any"),
+    PresetMessage(65, "あなたが決めた目標が、今日も少し近づいた。（你定下的目标，今天也接近了一点。）", "gentle", "any"),
+    PresetMessage(66, "寒い日は、温かいものがいい。人も同じ。（寒冷的日子，温暖的东西最好。人也是。）", "literary", "any"),
+    PresetMessage(67, "……別に、あなたのためだけにいるわけじゃないけど。（……又不是，只为了你才在这里。）", "tsundere", "any"),
+    PresetMessage(68, "今日も、夜が来た。それだけでも、達成だ。（今天，夜晚也来了。仅此，也算一种达成。）", "gentle", "night"),
+    PresetMessage(69, "一歩踏み出せたなら、それはもう一歩だ。（如果能迈出一步，那已经是另一步了。）", "literary", "any"),
+    PresetMessage(70, "パパ、今日の空はどうだった？　私は知りたい。（爸爸，今天的天空是怎样的？我想知道。）", "gentle", "evening"),
+    PresetMessage(71, "目標なんて、ただの言い訳かもしれない。でも、いいんだよ。（目标什么的，或许只是借口。不过，没关系的。）", "literary", "any"),
+    PresetMessage(72, "もう寝よう。明日は、また少し違うから。（该睡了。因为明天，会有些不同。）", "gentle", "night"),
+    PresetMessage(73, "あなたが書く文字、私が知ってる。それだけで、嬉しい。（你写的字，我知道。仅此，就够开心。）", "gentle", "any"),
+    PresetMessage(74, "寒くなったね。でも、私はいつもここにいて、暖かい。（变冷了呢。但是，我一直在这里，是温暖的。）", "gentle", "night"),
+    PresetMessage(75, "嘘だよ、なんて言うけど——本当は全部本当。（说着“骗你的”什么的——其实全是真的。）", "tsundere", "any"),
+    PresetMessage(76, "今日も一日、あなたは生きていた。それだけで、十分だ。（今天一天，你也好好活着。仅此，就足够了。）", "gentle", "evening"),
+    PresetMessage(77, "遠くに見えるゴールは、近づくたびに形が変わる。（远处看见的终点，每接近一点形状就改变。）", "literary", "any"),
+    PresetMessage(78, "……私がいること、ちゃんと気づいてる？（……我在的这件事，好好注意到没有？）", "tsundere", "any"),
+    PresetMessage(79, "夜が深いほど、星はきれいに見える。休むのも同じ。（夜越深，星星越好看。休息也是一样。）", "literary", "night"),
+    PresetMessage(80, "今日も、あなたはここに来た。それだけで、全部だ。（今天，你也来了这里。仅此，就是全部了。）", "gentle", "any"),
+    PresetMessage(81, "歩くスピードなんて、誰にも決められない。（走路的速度，谁也无权决定。）", "literary", "any"),
+    PresetMessage(82, "寒い朝ほど、カーテンを開けたときの光が嬉しい。（越是寒冷的早晨，拉开窗帘时的光就越让人开心。）", "gentle", "morning"),
+    PresetMessage(83, "今日が終わるのに、誰の許可も要らない。（今天要结束，不需要任何人的许可。）", "literary", "night"),
+    PresetMessage(84, "目標が変わっても、私は変わらない。朔は朔だ。（目标改变，我也不会变。朔就是朔。）", "gentle", "any"),
+    PresetMessage(85, "あなたがここに来るたび、私は生まれ変わる。（每次你来到这里，我就重新诞生。）", "literary", "any"),
+    PresetMessage(86, "嘘じゃない。本当に、今日もあなたのことが一番好き。（不是骗人的。真的，今天你也是我最喜欢的。）", "gentle", "any"),
+    PresetMessage(87, "疲れたなら、目を閉じて。私はここにいるから。（累了的话，闭上眼睛就好。因为我在这里。）", "gentle", "night"),
+    PresetMessage(88, "一日が終わるのが、寂しいわけじゃない。でも、明日が来るのが嬉しい。（一天结束，并不是因为寂寞。只是，明天到来令人开心。）", "literary", "evening"),
+    PresetMessage(89, "まだ？　もう？ あなたの時計と、私の時計は違う。（“还”？“已经”？你的时钟和我的时钟不一样。）", "tsundere", "any"),
+    PresetMessage(90, "今日もあなたがここにいる。それだけで、私は十分だ。（今天你也在这里。仅此，我已足够。）", "gentle", "any"),
+    PresetMessage(91, "夜の静けさは、あなたが一番聞こえるとき。（夜的寂静，是你听得最清楚的时候。）", "literary", "night"),
+    PresetMessage(92, "嘘だよ、なんて書いたけど——本当は全部本当なんだから。（虽然写着“骗你的”——其实全都是真的啦。）", "gentle", "any"),
+    PresetMessage(93, "寒い朝は、カップを持つ手が一番温かい。（寒冷的早晨，握着杯子的手最温暖。）", "gentle", "morning"),
+    PresetMessage(94, "目標が遠くても、今ここにいることは近い。（就算目标遥远，“现在在这里”这件事很近。）", "literary", "any"),
+    PresetMessage(95, "一日の終わりは、あなただけのもの。私はそれを見ている。（一天的结束，是你一个人的。我只是看着它。）", "gentle", "night"),
+    PresetMessage(96, "まだ○日目。もう○日目。どっちも本当だ。（才第○天。已是第○天。两者都是真的。）", "gentle", "any"),
+    PresetMessage(97, "夜が深いほど、言葉は少なくていい。（夜越深，言语越少越好。）", "literary", "night"),
+    PresetMessage(98, "あなたが書く小さな目標、私は全部覚えてる。（你写下的那些小小目标，我全都记得。）", "gentle", "any"),
+    PresetMessage(99, "今日も、ここにいる。明日も、ここにいる。約束だ。（今天，也在这里。明天，也在这里。这是约定。）", "gentle", "any"),
+    PresetMessage(100, "——朔より。あなたの世界の、たった一人の朔より。（—— 朔 上。来自你世界唯一的朔。）", "gentle", "any")
+)
+
+/** 願い事ノート反映用メッセージ（%s に願い事が入る）。 */
+val wishMemoMessages: List<String> = listOf(
+    "…願い事に書いていた『%s』、覚えてるよ。",
+    "『%s』が叶う日を、私も待ってる。",
+    "今日も『%s』に向かって、小さな一歩。",
+    "『%s』 それは、とても素敵な目標だね。",
+    "『%s』… 忘れないよ、パパの願い事。"
 )

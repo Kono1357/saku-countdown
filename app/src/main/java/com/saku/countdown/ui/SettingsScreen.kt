@@ -69,6 +69,7 @@ fun SettingsScreen(
     var tone by remember { mutableStateOf(data.messageTone) }
     var customMessages by remember { mutableStateOf(data.customMessages) }
     var customInput by remember { mutableStateOf("") }
+    var wishMemo by remember { mutableStateOf(data.wishMemo) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     val dateFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
@@ -223,11 +224,25 @@ fun SettingsScreen(
                 }
             }
 
+            // 願い事ノート
+            item {
+                Text("你的小小愿望", fontSize = 14.sp, color = MutedBlueGray)
+            }
+            item {
+                OutlinedTextField(
+                    value = wishMemo,
+                    onValueChange = { wishMemo = it },
+                    placeholder = { Text("想实现的小小的事…") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+
             // 保存按钮
             item {
                 Button(
                     onClick = {
-                        viewModel.saveSettings(goalName, targetDate, tone, customMessages)
+                        viewModel.saveSettings(goalName, targetDate, tone, customMessages, wishMemo)
                         onNavigateBack()
                     },
                     modifier = Modifier

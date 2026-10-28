@@ -19,7 +19,8 @@ data class SakuData(
     val lastUpdateDate: String = "", // 最後にメッセージを更新した日付
     val messageTone: String = "standard",
     val customMessages: List<String> = emptyList(),   // カスタムメッセージ（最大20件）
-    val messageHistory: List<HistoryEntry> = emptyList() // 履歴（日付順に追記）
+    val messageHistory: List<HistoryEntry> = emptyList(), // 履歴（日付順に追記）
+    val wishMemo: String = ""        // 願い事ノート（一行メモ）
 )
 
 /** 履歴1件分。 */
@@ -27,7 +28,8 @@ data class HistoryEntry(
     val day: Int,      // 経過日数
     val date: String,  // "yyyy-MM-dd"
     val message: String,
-    val source: String // "preset" / "custom"
+    val source: String, // "preset" / "custom" / "wish"
+    val memo: String = "" // 履歴メモ（コメント）
 )
 
 /** SharedPreferences を使った読み書きロジック。 */
@@ -60,10 +62,12 @@ class SakuDataRepository(context: Context) {
                             day = e.optInt("day", 0),
                             date = e.optString("date", ""),
                             message = e.optString("message", ""),
-                            source = e.optString("source", "preset")
+                            source = e.optString("source", "preset"),
+                            memo = e.optString("memo", "")
                         )
                     }
-                } ?: emptyList()
+                } ?: emptyList(),
+                wishMemo = obj.optString("wishMemo", "")
             )
         } catch (e: Exception) {
             // JSON が壊れている場合は初期値を返す
@@ -92,9 +96,11 @@ class SakuDataRepository(context: Context) {
                         put("date", h.date)
                         put("message", h.message)
                         put("source", h.source)
+                        put("memo", h.memo)
                     })
                 }
             })
+            put("wishMemo", data.wishMemo)
         }
         prefs.edit().putString(KEY_DATA, obj.toString()).apply()
     }
