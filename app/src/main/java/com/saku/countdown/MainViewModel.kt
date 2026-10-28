@@ -37,13 +37,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refresh()
     }
 
-    /** 起動時：保存データを読み込み、日数とメッセージを更新する。 */
-    private fun refresh() {
+    /** 起動・復帰時：保存データを読み込み、日数とメッセージを更新して永続化する。 */
+    fun refresh() {
         var d = repository.load()
         val today = todayString()
         if (d.targetDate.isNotBlank()) {
             d = d.copy(todayDayCount = calcDayCount(d.startDate, today))
             d = updateMessage(d, today)
+            // 日付をまたいだ更新（新メッセージ・日数・履歴）を確実に保存する
+            repository.save(d)
         }
         data = d
     }
@@ -94,10 +96,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /** 毎日1回だけ新しいメッセージを選び、履歴に追記して返す。 */
     private fun updateMessage(d: SakuData, today: String): SakuData {
         if (d.targetDate.isBlank()) {
-            return d.copy(lastMessage = "", lastMessageIndex = -1, lastUpdateDate = today)
+            // 目標が空：メッセージを消し、更新日もリセット（同日に再設定したとき即メッセージを出せるように）
+            return d.copy(lastMessage = "", lastMessageIndex = -1, lastUpdateDate = "")
         }
-        // 今日すでに更新済みなら何もしない（1日1回のルール）
-        if (d.lastUpdateDate == today) return d
+        // 今日すでに更新済み、かつ実際にメッセージがある場合だけスキップ（1日1回のルール）
+        if (d.lastUpdateDate == today && d.lastMessage.isNotBlank()) return d
 
         val candidate = chooseMessage(d.messageTone, d.lastMessageIndex, d.customMessages)
         val entry = HistoryEntry(

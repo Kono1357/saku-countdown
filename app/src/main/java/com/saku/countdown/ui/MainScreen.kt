@@ -64,13 +64,11 @@ fun MainScreen(
         data.lastMessage.replace("○", data.todayDayCount.toString())
     }
 
-    // 距离目标还有几天（倒计时）
-    val remainingDays = remember(data.targetDate) {
-        data.targetDate.takeIf { it.isNotBlank() }?.let {
-            runCatching {
-                ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(it)).toInt()
-            }.getOrNull()
-        }
+    // 距离目标还有几天（倒计时）——每次重组都重新算，避免跨天后数值不更新
+    val remainingDays = data.targetDate.takeIf { it.isNotBlank() }?.let {
+        runCatching {
+            ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(it)).toInt()
+        }.getOrNull()
     }
     val countdownText = when {
         remainingDays == null -> null
