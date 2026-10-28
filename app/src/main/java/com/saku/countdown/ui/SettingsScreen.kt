@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.saku.countdown.MainViewModel
 import com.saku.countdown.ui.theme.MutedBlueGray
 import com.saku.countdown.ui.theme.NightBlue
@@ -60,7 +59,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel
 ) {
     val data = viewModel.data
 

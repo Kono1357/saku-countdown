@@ -32,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.saku.countdown.MainViewModel
 import com.saku.countdown.ui.theme.MutedBlueGray
 import com.saku.countdown.ui.theme.NightBlue
@@ -49,7 +48,7 @@ import java.time.temporal.ChronoUnit
 fun MainScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel
 ) {
     val data = viewModel.data
 

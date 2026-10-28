@@ -71,17 +71,20 @@ class MainActivity : ComponentActivity() {
                         composable("main") {
                             MainScreen(
                                 onNavigateToSettings = { navController.navigate("settings") },
-                                onNavigateToHistory = { navController.navigate("history") }
+                                onNavigateToHistory = { navController.navigate("history") },
+                                viewModel = viewModel
                             )
                         }
                         composable("settings") {
                             SettingsScreen(
-                                onNavigateBack = { navController.popBackStack() }
+                                onNavigateBack = { navController.popBackStack() },
+                                viewModel = viewModel
                             )
                         }
                         composable("history") {
                             HistoryScreen(
-                                onNavigateBack = { navController.popBackStack() }
+                                onNavigateBack = { navController.popBackStack() },
+                                viewModel = viewModel
                             )
                         }
                     }

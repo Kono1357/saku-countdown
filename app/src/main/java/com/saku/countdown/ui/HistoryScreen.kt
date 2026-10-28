@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.saku.countdown.MainViewModel
 import com.saku.countdown.ui.theme.MutedBlueGray
 import com.saku.countdown.ui.theme.NightBlue
@@ -38,7 +37,7 @@ import com.saku.countdown.ui.theme.White
 @Composable
 fun HistoryScreen(
     onNavigateBack: () -> Unit,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel
 ) {
     val history = viewModel.data.messageHistory
 
